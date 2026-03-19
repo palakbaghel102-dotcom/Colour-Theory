@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Theory App</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0e12;--surface:#17171e;--surface2:#1f1f2a;--border:rgba(255,255,255,0.08);--text:#f0eee8;--muted:#8a8898;--accent:#FF7A1A;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:8px;padding:12px 24px;background:rgba(14,14,18,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.nav-tabs{display:flex;gap:4px;flex-wrap:wrap;}
+.nav-tab{padding:6px 14px;border-radius:20px;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:transparent;transition:all 0.2s;}
+.nav-tab:hover{color:var(--text);background:var(--surface2);}
+.nav-tab.active{color:#0e0e12;background:var(--text);font-weight:500;}
+.section{display:none;}.section.active{display:block;}
+.page{max-width:980px;margin:0 auto;padding:40px 28px 80px;}
+.page-title{font-family:'Fraunces',serif;font-size:34px;font-weight:700;letter-spacing:-1px;margin-bottom:8px;}
+.page-sub{color:var(--muted);font-size:15px;margin-bottom:36px;line-height:1.6;}
+.btn{padding:11px 26px;border-radius:40px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all 0.2s;}
+.btn-primary{background:var(--accent);color:#1a0a00;}.btn-primary:hover{background:#ff9040;transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);}.btn-ghost:hover{border-color:rgba(255,255,255,0.28);background:var(--surface);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.section.active .page{animation:fadeUp 0.38s ease both;}
+
+/* HOME */
+.hero{padding:72px 32px 52px;max-width:880px;margin:0 auto;text-align:center;}
+.hero-tag{display:inline-block;background:rgba(255,122,26,0.12);color:var(--accent);border:1px solid rgba(255,122,26,0.3);padding:4px 14px;border-radius:20px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:26px;}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(38px,7vw,72px);font-weight:700;line-height:1.06;letter-spacing:-2px;margin-bottom:20px;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero p{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto 36px;line-height:1.75;}
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.color-strip{display:flex;height:5px;border-radius:3px;overflow:hidden;max-width:560px;margin:36px auto 0;opacity:0.6;}
+.color-strip span{flex:1;}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;max-width:880px;margin:0 auto;}
+.hg-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:all 0.22s;}
+.hg-card:hover{border-color:rgba(255,255,255,0.18);transform:translateY(-3px);}
+.hg-icon{width:40px;height:40px;border-radius:11px;margin-bottom:13px;}
+.hg-title{font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:5px;}
+.hg-text{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* WHEEL */
+.wheel-layout{display:grid;grid-template-columns:280px 1fr;gap:28px;align-items:start;}
+@media(max-width:640px){.wheel-layout{grid-template-columns:1fr;}}
+.wheel-wrap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+#cwsvg{width:240px;height:240px;}
+#cwsvg path{cursor:pointer;transition:opacity 0.15s;}
+#cwsvg path:hover{opacity:0.72;}
+.wheel-sel{background:var(--surface2);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--muted);text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;width:100%;}
+#wsel-name{font-weight:500;color:var(--text);margin-right:5px;}
+.wheel-info-cards{display:flex;flex-direction:column;gap:14px;}
+.wi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.wi-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700;margin-bottom:8px;}
+.wi-body{font-size:13px;color:var(--muted);line-height:1.65;}
+.wi-dots{display:flex;gap:7px;margin-bottom:10px;}
+.wi-dot{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);}
+
+/* SCHEMES */
+.schemes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+@media(max-width:600px){.schemes-grid{grid-template-columns:1fr;}}
+.sc-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px;transition:all 0.22s;}
+.sc-card:hover{border-color:rgba(255,255,255,0.18);transform:translateY(-2px);}
+.sc-num{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;}
+.sc-name{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:14px;letter-spacing:-0.5px;}
+.sc-swatches{display:flex;gap:6px;margin-bottom:14px;}
+.sc-sw{flex:1;height:42px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);transition:transform 0.2s;}
+.sc-card:hover .sc-sw{transform:scaleY(1.08);}
+.sc-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+.sc-tag{display:inline-block;margin-top:12px;padding:3px 12px;border-radius:12px;font-size:11px;font-weight:500;}
+.tag-c{background:rgba(255,122,26,0.13);color:#ff9a50;border:1px solid rgba(255,122,26,0.22);}
+.tag-a{background:rgba(52,199,89,0.1);color:#5adb7a;border:1px solid rgba(52,199,89,0.18);}
+.tag-t{background:rgba(175,82,222,0.1);color:#c87ee8;border:1px solid rgba(175,82,222,0.18);}
+.tag-m{background:rgba(0,122,255,0.1);color:#60aaff;border:1px solid rgba(0,122,255,0.18);}
+
+/* RGB */
+.rgb-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+@media(max-width:640px){.rgb-layout{grid-template-columns:1fr;}}
+.rgb-mixer{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;}
+.rgb-preview{width:100%;height:110px;border-radius:14px;margin-bottom:20px;transition:background 0.08s;border:1px solid var(--border);}
+.rgb-hex{text-align:center;font-family:'Fraunces',serif;font-size:22px;margin-bottom:22px;letter-spacing:2px;}
+.rgb-row{margin-bottom:16px;}
+.rgb-row-lbl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.rgb-row-lbl span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;}
+.sr{background:linear-gradient(to right,#111,#FF3B30);}
+.sg{background:linear-gradient(to right,#111,#34C759);}
+.sb{background:linear-gradient(to right,#111,#007AFF);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,0.25);box-shadow:0 2px 5px rgba(0,0,0,0.4);}
+.preset-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px;}
+.rgb-facts{display:flex;flex-direction:column;gap:14px;}
+.rgb-fact{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;}
+.rf-title{font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:6px;}
+.rf-text{font-size:13px;color:var(--muted);line-height:1.65;}
+
+/* PALETTE */
+input[type=color]{width:46px;height:46px;border-radius:12px;border:2px solid var(--border);cursor:pointer;background:none;padding:2px;}
+.pal-layout{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start;}
+@media(max-width:700px){.pal-layout{grid-template-columns:1fr;}}
+.pal-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:22px;}
+.pal-section-label{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:10px;}
+.pal-color-row{display:flex;align-items:center;gap:14px;}
+.pal-color-preview{width:54px;height:54px;border-radius:14px;border:2px solid rgba(255,255,255,0.12);flex-shrink:0;transition:background 0.2s;}
+.pal-color-details{flex:1;}
+.pal-color-hex{font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:4px;}
+.pal-color-name{font-size:12px;color:var(--muted);}
+.pal-presets{display:flex;gap:8px;flex-wrap:wrap;}
+.pal-preset{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all 0.18s;flex-shrink:0;}
+.pal-preset:hover{transform:scale(1.18);border-color:rgba(255,255,255,0.4);}
+.pal-preset.selected{border-color:#fff;transform:scale(1.1);}
+#bc{position:absolute;opacity:0;width:0;height:0;}
+.custom-color-btn{width:32px;height:32px;border-radius:50%;border:2px dashed rgba(255,255,255,0.25);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted);transition:all 0.18s;background:var(--surface2);}
+.custom-color-btn:hover{border-color:rgba(255,255,255,0.5);color:var(--text);}
+.pal-schemes{display:flex;flex-direction:column;gap:8px;}
+.pal-scheme-btn{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all 0.18s;text-align:left;width:100%;}
+.pal-scheme-btn:hover{border-color:rgba(255,255,255,0.2);background:var(--surface);}
+.pal-scheme-btn.active{border-color:var(--accent);background:rgba(255,122,26,0.08);}
+.psb-dots{display:flex;gap:4px;flex-shrink:0;}
+.psb-dot{width:10px;height:10px;border-radius:50%;}
+.psb-info{flex:1;}
+.psb-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.psb-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+.pal-output-panel{display:flex;flex-direction:column;gap:16px;}
+.pal-swatches-big{display:flex;gap:0;border-radius:20px;overflow:hidden;height:140px;border:1px solid var(--border);}
+.psw-big{flex:1;cursor:pointer;position:relative;transition:flex 0.3s ease;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;}
+.psw-big:hover{flex:2;}
+.psw-big-hex{font-size:10px;font-weight:500;letter-spacing:0.06em;color:rgba(255,255,255,0.8);text-shadow:0 1px 4px rgba(0,0,0,0.6);background:rgba(0,0,0,0.3);padding:2px 7px;border-radius:6px;opacity:0;transition:opacity 0.18s;}
+.psw-big:hover .psw-big-hex{opacity:1;}
+.pal-swatch-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.psc{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform 0.18s,border-color 0.18s;}
+.psc:hover{transform:translateY(-3px);border-color:rgba(255,255,255,0.2);}
+.psc-color{height:64px;}
+.psc-info{padding:10px 12px;}
+.psc-role{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:3px;}
+.psc-hex{font-size:13px;font-weight:500;color:var(--text);}
+.psc-rgb{font-size:11px;color:var(--muted);margin-top:2px;}
+.pal-export{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.pal-export-label{font-size:13px;color:var(--muted);flex:1;min-width:120px;}
+.pal-export-codes{display:flex;gap:8px;flex-wrap:wrap;}
+.pec{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;font-family:monospace;color:var(--text);cursor:pointer;transition:all 0.15s;}
+.pec:hover{background:var(--accent);color:#1a0a00;border-color:var(--accent);}
+
+/* CONTRAST CHECKER */
+.cc-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:640px){.cc-layout{grid-template-columns:1fr;}}
+.cc-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;}
+.cc-preview{border-radius:14px;padding:32px 24px;margin-bottom:20px;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;border:1px solid var(--border);}
+.cc-preview-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;}
+.cc-preview-body{font-size:14px;line-height:1.6;text-align:center;max-width:280px;}
+.cc-preview-btn{padding:8px 20px;border-radius:20px;font-size:13px;font-weight:500;border:none;cursor:default;}
+.cc-pickers{display:flex;gap:16px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
+.cc-picker-group{display:flex;flex-direction:column;gap:6px;}
+.cc-picker-label{font-size:12px;color:var(--muted);}
+.cc-picker-row{display:flex;align-items:center;gap:10px;}
+.cc-color-swatch{width:44px;height:44px;border-radius:12px;border:2px solid var(--border);}
+.cc-hex-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;font-size:13px;font-family:monospace;width:100px;outline:none;}
+.cc-hex-input:focus{border-color:rgba(255,255,255,0.3);}
+.cc-result{background:var(--surface2);border-radius:16px;padding:20px;}
+.cc-ratio{font-family:'Fraunces',serif;font-size:40px;font-weight:700;margin-bottom:4px;}
+.cc-ratio-label{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.cc-grades{display:flex;flex-direction:column;gap:8px;}
+.cc-grade{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:13px;}
+.cc-grade-pass{background:rgba(52,199,89,0.1);border:1px solid rgba(52,199,89,0.2);}
+.cc-grade-fail{background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.15);}
+.cc-grade-icon{font-size:16px;flex-shrink:0;}
+.cc-grade-text{flex:1;}
+.cc-grade-name{font-weight:500;color:var(--text);}
+.cc-grade-desc{font-size:11px;color:var(--muted);}
+.cc-tip{margin-top:16px;padding:14px;background:rgba(255,122,26,0.08);border:1px solid rgba(255,122,26,0.2);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.6;}
+.cc-info-cards{display:flex;flex-direction:column;gap:14px;}
+.cc-info-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.cc-info-title{font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:8px;}
+.cc-info-body{font-size:13px;color:var(--muted);line-height:1.65;}
+
+/* MOCKUP */
+.mockup-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;align-items:center;}
+.mockup-btn{padding:8px 18px;border-radius:20px;font-size:13px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.mockup-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.mockup-btn.active{background:var(--accent);color:#1a0a00;border-color:var(--accent);font-weight:500;}
+.mockup-frame{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px;overflow:hidden;}
+.mockup-bar{height:10px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 10px;margin-bottom:2px;}
+.mockup-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);}
+#mockup-inner{border-radius:14px;overflow:hidden;transition:all 0.3s;}
+
+/* COLOR BLINDNESS */
+.cb-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:640px){.cb-layout{grid-template-columns:1fr;}}
+.cb-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;}
+.cb-types{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.cb-type-btn{padding:10px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all 0.18s;font-size:12px;text-align:left;}
+.cb-type-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.cb-type-btn.active{border-color:var(--accent);background:rgba(255,122,26,0.08);color:var(--text);}
+.cb-type-name{font-weight:500;font-size:13px;margin-bottom:2px;}
+.cb-type-pct{font-size:10px;color:var(--muted);}
+.cb-preview-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.cb-preview-box{border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.cb-preview-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;}
+.cb-swatch-row{display:flex;gap:0;height:60px;border-radius:10px;overflow:hidden;}
+.cb-swatch-item{flex:1;}
+.cb-info{background:var(--surface2);border-radius:14px;padding:16px;}
+.cb-info-name{font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.cb-info-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:12px;}
+.cb-info-tip{font-size:12px;color:var(--muted);padding:12px;background:rgba(255,122,26,0.08);border:1px solid rgba(255,122,26,0.18);border-radius:10px;line-height:1.6;}
+.cb-guide{display:flex;flex-direction:column;gap:12px;}
+.cb-guide-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.cb-guide-title{font-weight:500;font-size:14px;margin-bottom:6px;}
+.cb-guide-text{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* QUIZ */
+.quiz-wrap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:620px;margin:0 auto;}
+.qprog{display:flex;gap:6px;margin-bottom:26px;}
+.qpd{flex:1;height:4px;border-radius:2px;background:var(--surface2);transition:background 0.3s;}
+.qpd.done{background:var(--accent);}.qpd.cur{background:rgba(255,122,26,0.45);}
+.qq{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:8px;line-height:1.3;letter-spacing:-0.5px;}
+.qhint{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.qvis{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin-bottom:22px;}
+.qsw{width:56px;height:56px;border-radius:13px;border:1px solid rgba(255,255,255,0.1);}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.qopt{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all 0.18s;text-align:left;}
+.qopt:hover{border-color:rgba(255,255,255,0.22);background:var(--surface);}
+.qopt.correct{border-color:#34C759;background:rgba(52,199,89,0.1);color:#5ADB7A;}
+.qopt.wrong{border-color:#FF3B30;background:rgba(255,59,48,0.1);color:#FF6B63;}
+.qfb{margin-top:18px;padding:13px 16px;border-radius:12px;font-size:14px;line-height:1.6;display:none;}
+.qfb.show{display:block;}
+.fb-ok{background:rgba(52,199,89,0.1);border:1px solid rgba(52,199,89,0.2);color:#5ADB7A;}
+.fb-err{background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.2);color:#FF6B63;}
+.qnext{margin-top:16px;width:100%;display:none;}.qnext.show{display:block;}
+.qscore{text-align:center;display:none;}.qscore.show{display:block;}
+.score-big{font-family:'Fraunces',serif;font-size:68px;font-weight:700;color:var(--accent);line-height:1;margin:18px 0;}
+.score-msg{font-size:16px;color:var(--muted);margin-bottom:26px;line-height:1.65;}
+
+.toast{position:fixed;bottom:22px;right:22px;background:var(--text);color:var(--bg);padding:9px 20px;border-radius:40px;font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all 0.3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-tabs">
+    <button class="nav-tab active"  onclick="show('home')">Home</button>
+    <button class="nav-tab"         onclick="show('wheel')">Color Wheel</button>
+    <button class="nav-tab"         onclick="show('schemes')">Schemes</button>
+    <button class="nav-tab"         onclick="show('rgb')">RGB Model</button>
+    <button class="nav-tab"         onclick="show('palette')">Palette Builder</button>
+    <button class="nav-tab"         onclick="show('contrast')">Contrast Checker</button>
+    <button class="nav-tab"         onclick="show('mockup')">UI Mockup</button>
+    <button class="nav-tab"         onclick="show('blindness')">Color Blindness</button>
+    <button class="nav-tab"         onclick="show('quiz')">Quiz</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="section active" id="sec-home">
+  <div class="hero">
+    <div class="hero-tag">Interactive · Beginner Friendly · 9 Modules</div>
+    <h1>Learn <em>Color Theory</em><br>the fun way</h1>
+    <p>Explore the color wheel, mix RGB, build palettes, check contrast, preview UI mockups, and test color blindness — all in one place.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="show('wheel')">Start Learning</button>
+      <button class="btn btn-ghost"   onclick="show('quiz')">Take the Quiz</button>
+    </div>
+    <div class="color-strip">
+      <span style="background:#FF3B30"></span><span style="background:#FF6523"></span>
+      <span style="background:#FF9500"></span><span style="background:#FFCC00"></span>
+      <span style="background:#FFE600"></span><span style="background:#AACC00"></span>
+      <span style="background:#34C759"></span><span style="background:#00C7BE"></span>
+      <span style="background:#007AFF"></span><span style="background:#5856D6"></span>
+      <span style="background:#AF52DE"></span><span style="background:#FF2D55"></span>
+    </div>
+  </div>
+  <div class="page" style="padding-top:0">
+    <div class="home-grid">
+      <div class="hg-card" onclick="show('wheel')"><div class="hg-icon" style="background:conic-gradient(#FF3B30,#FF9500,#FFE600,#34C759,#007AFF,#AF52DE,#FF3B30)"></div><div class="hg-title">Color Wheel</div><div class="hg-text">Primary, secondary & tertiary colors.</div></div>
+      <div class="hg-card" onclick="show('schemes')"><div class="hg-icon" style="background:linear-gradient(135deg,#007AFF 50%,#FF9500 50%)"></div><div class="hg-title">Color Schemes</div><div class="hg-text">Complementary, Analogous, Triadic & more.</div></div>
+      <div class="hg-card" onclick="show('rgb')"><div class="hg-icon" style="background:linear-gradient(135deg,#FF3B30,#34C759,#007AFF)"></div><div class="hg-title">RGB Model</div><div class="hg-text">Mix Red, Green & Blue light interactively.</div></div>
+      <div class="hg-card" onclick="show('palette')"><div class="hg-icon" style="background:linear-gradient(135deg,#1A6FDB,#FF7A1A,#1C2B4A)"></div><div class="hg-title">Palette Builder</div><div class="hg-text">Generate palettes from any base color.</div></div>
+      <div class="hg-card" onclick="show('contrast')"><div class="hg-icon" style="background:linear-gradient(135deg,#fff 50%,#000 50%);border-radius:11px"></div><div class="hg-title">Contrast Checker</div><div class="hg-text">Check if text is readable on any background.</div></div>
+      <div class="hg-card" onclick="show('mockup')"><div class="hg-icon" style="background:#1A6FDB;display:flex;align-items:center;justify-content:center"><div style="width:24px;height:16px;background:rgba(255,255,255,0.3);border-radius:3px"></div></div><div class="hg-title">UI Mockup</div><div class="hg-text">See your palette applied to a real app screen.</div></div>
+      <div class="hg-card" onclick="show('blindness')"><div class="hg-icon" style="background:linear-gradient(135deg,#7a7a5a,#5a6a7a)"></div><div class="hg-title">Color Blindness</div><div class="hg-text">Simulate how designs look to colorblind users.</div></div>
+      <div class="hg-card" onclick="show('quiz')"><div class="hg-icon" style="background:linear-gradient(135deg,var(--accent),#ff2d55)"></div><div class="hg-title">Quiz</div><div class="hg-text">10 questions to test your knowledge.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COLOR WHEEL -->
+<div class="section" id="sec-wheel">
+  <div class="page">
+    <div class="page-title">The Color Wheel</div>
+    <div class="page-sub">The color wheel shows how colors relate to each other. Click any segment to learn about it.</div>
+    <div class="wheel-layout">
+      <div class="wheel-wrap">
+        <svg id="cwsvg" viewBox="0 0 240 240">
+          <path d="M120,120 L120,38 A82,82 0 0,1 161,49 Z" fill="#FF3B30" data-n="Red" data-i="Primary color. Warm and energetic. Cannot be mixed from other colors."/>
+          <path d="M120,120 L161,49 A82,82 0 0,1 192,80 Z" fill="#FF6523" data-n="Red-Orange" data-i="Tertiary: a warm mix of red and orange. Bold and exciting."/>
+          <path d="M120,120 L192,80 A82,82 0 0,1 202,120 Z" fill="#FF9500" data-n="Orange" data-i="Secondary (Red + Yellow). Creative and enthusiastic."/>
+          <path d="M120,120 L202,120 A82,82 0 0,1 192,160 Z" fill="#FFCC00" data-n="Yellow-Orange" data-i="Tertiary: cheerful and warm. Great for inviting UI elements."/>
+          <path d="M120,120 L192,160 A82,82 0 0,1 161,191 Z" fill="#FFE600" data-n="Yellow" data-i="Primary color. Bright and optimistic. Represents happiness."/>
+          <path d="M120,120 L161,191 A82,82 0 0,1 120,202 Z" fill="#AACC00" data-n="Yellow-Green" data-i="Tertiary: fresh and natural. Found everywhere in nature."/>
+          <path d="M120,120 L120,202 A82,82 0 0,1 79,191 Z"  fill="#34C759" data-n="Green" data-i="Secondary (Yellow + Blue). Calming and natural. Represents growth."/>
+          <path d="M120,120 L79,191 A82,82 0 0,1 48,160 Z"   fill="#00C7BE" data-n="Blue-Green" data-i="Tertiary: refreshing and serene. Common in wellness apps."/>
+          <path d="M120,120 L48,160 A82,82 0 0,1 38,120 Z"   fill="#007AFF" data-n="Blue" data-i="Primary color. Cool and trustworthy. Most used color in UI design."/>
+          <path d="M120,120 L38,120 A82,82 0 0,1 48,80 Z"    fill="#5856D6" data-n="Blue-Violet" data-i="Tertiary: deep and mysterious. Mix of blue and violet."/>
+          <path d="M120,120 L48,80 A82,82 0 0,1 79,49 Z"     fill="#AF52DE" data-n="Violet" data-i="Secondary (Red + Blue). Creative and royal. Luxury and spirituality."/>
+          <path d="M120,120 L79,49 A82,82 0 0,1 120,38 Z"    fill="#FF2D55" data-n="Red-Violet" data-i="Tertiary: romantic and dramatic. Vivid mix of red and violet."/>
+          <circle cx="120" cy="120" r="38" fill="#17171e"/>
+          <text x="120" y="115" text-anchor="middle" font-family="Fraunces,serif" font-size="12" fill="#f0eee8" font-weight="700">Color</text>
+          <text x="120" y="131" text-anchor="middle" font-family="Fraunces,serif" font-size="12" fill="#f0eee8" font-weight="700">Wheel</text>
+        </svg>
+        <div class="wheel-sel"><span id="wsel-name">Click any color</span><span id="wsel-desc"> to learn about it</span></div>
+      </div>
+      <div class="wheel-info-cards">
+        <div class="wi-card"><div class="wi-dots"><div class="wi-dot" style="background:#FF3B30"></div><div class="wi-dot" style="background:#FFE600"></div><div class="wi-dot" style="background:#007AFF"></div></div><div class="wi-title">Primary Colors</div><div class="wi-body">Red, Yellow, and Blue are the 3 primary colors. They <strong style="color:#f0eee8">cannot be made</strong> by mixing other colors. All other colors come from these three.</div></div>
+        <div class="wi-card"><div class="wi-dots"><div class="wi-dot" style="background:#FF9500"></div><div class="wi-dot" style="background:#34C759"></div><div class="wi-dot" style="background:#AF52DE"></div></div><div class="wi-title">Secondary Colors</div><div class="wi-body">Mix two primaries:<br><span style="color:#FF9500">●</span> Red + Yellow = <strong style="color:#FF9500">Orange</strong><br><span style="color:#34C759">●</span> Yellow + Blue = <strong style="color:#34C759">Green</strong><br><span style="color:#AF52DE">●</span> Red + Blue = <strong style="color:#AF52DE">Violet</strong></div></div>
+        <div class="wi-card"><div class="wi-dots"><div class="wi-dot" style="background:#FF6523"></div><div class="wi-dot" style="background:#AACC00"></div><div class="wi-dot" style="background:#00C7BE"></div><div class="wi-dot" style="background:#5856D6"></div><div class="wi-dot" style="background:#FF2D55"></div><div class="wi-dot" style="background:#FFCC00"></div></div><div class="wi-title">Tertiary Colors</div><div class="wi-body">Mix a primary with its neighboring secondary. There are 6 — they sit between the others on the wheel.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEMES -->
+<div class="section" id="sec-schemes">
+  <div class="page">
+    <div class="page-title">Color Schemes</div>
+    <div class="page-sub">A color scheme is a planned set of colors that work well together. Here are the four core types every designer must know.</div>
+    <div class="schemes-grid">
+      <div class="sc-card"><div class="sc-num">Scheme 01</div><div class="sc-name">Complementary</div><div class="sc-swatches"><div class="sc-sw" style="background:#1A6FDB"></div><div class="sc-sw" style="background:#FF7A1A"></div></div><div class="sc-desc">Two colors <strong style="color:#f0eee8">directly opposite</strong> on the wheel. Maximum contrast — each makes the other more vibrant. Perfect for CTAs in App UI.</div><div class="sc-tag tag-c">High contrast · Bold · Energetic</div><div style="font-size:12px;color:var(--muted);margin-top:10px">Examples: Netflix, Firefox, Fanta</div></div>
+      <div class="sc-card"><div class="sc-num">Scheme 02</div><div class="sc-name">Analogous</div><div class="sc-swatches"><div class="sc-sw" style="background:#FF3B30"></div><div class="sc-sw" style="background:#FF9500"></div><div class="sc-sw" style="background:#FFE600"></div></div><div class="sc-desc">Three colors <strong style="color:#f0eee8">next to each other</strong> on the wheel. Harmonious and natural-looking — like a sunset. Low contrast but very pleasing.</div><div class="sc-tag tag-a">Harmonious · Natural · Calm</div><div style="font-size:12px;color:var(--muted);margin-top:10px">Examples: Wellness apps, nature photography</div></div>
+      <div class="sc-card"><div class="sc-num">Scheme 03</div><div class="sc-name">Triadic</div><div class="sc-swatches"><div class="sc-sw" style="background:#FF3B30"></div><div class="sc-sw" style="background:#FFE600"></div><div class="sc-sw" style="background:#007AFF"></div></div><div class="sc-desc">Three colors <strong style="color:#f0eee8">equally spaced</strong> 120° apart. Very vibrant and playful. Use one dominant and two as accents to avoid visual chaos.</div><div class="sc-tag tag-t">Vibrant · Playful · Balanced</div><div style="font-size:12px;color:var(--muted);margin-top:10px">Examples: Burger King, Toy Story, children's games</div></div>
+      <div class="sc-card"><div class="sc-num">Scheme 04</div><div class="sc-name">Monochromatic</div><div class="sc-swatches"><div class="sc-sw" style="background:#E6F1FB"></div><div class="sc-sw" style="background:#85B7EB"></div><div class="sc-sw" style="background:#378ADD"></div><div class="sc-sw" style="background:#185FA5"></div><div class="sc-sw" style="background:#042C53"></div></div><div class="sc-desc"><strong style="color:#f0eee8">One hue</strong> in multiple shades and tints. Clean, elegant, and very easy to get right. Great for professional apps and portfolios.</div><div class="sc-tag tag-m">Elegant · Minimal · Professional</div><div style="font-size:12px;color:var(--muted);margin-top:10px">Examples: Linear, Notion, most fintech apps</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- RGB -->
+<div class="section" id="sec-rgb">
+  <div class="page">
+    <div class="page-title">The RGB Color Model</div>
+    <div class="page-sub">Every color on a screen is made from three beams of light: Red, Green, and Blue. Drag the sliders to mix your own.</div>
+    <div class="rgb-layout">
+      <div class="rgb-mixer">
+        <div class="rgb-preview" id="rgb-prev"></div>
+        <div class="rgb-hex" id="rgb-hex">#808080</div>
+        <div class="rgb-row"><div class="rgb-row-lbl"><span style="color:#FF6B63;font-weight:500">Red (R)</span><span id="rv">128</span></div><input type="range" class="sr" min="0" max="255" value="128" id="rs" oninput="updRGB()"></div>
+        <div class="rgb-row"><div class="rgb-row-lbl"><span style="color:#5ADB7A;font-weight:500">Green (G)</span><span id="gv">128</span></div><input type="range" class="sg" min="0" max="255" value="128" id="gs" oninput="updRGB()"></div>
+        <div class="rgb-row"><div class="rgb-row-lbl"><span style="color:#60AAFF;font-weight:500">Blue (B)</span><span id="bv">128</span></div><input type="range" class="sb" min="0" max="255" value="128" id="bs" oninput="updRGB()"></div>
+        <div class="preset-row">
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(255,0,0)">Pure Red</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(0,255,0)">Pure Green</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(0,0,255)">Pure Blue</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(255,255,0)">Yellow</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(0,255,255)">Cyan</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(255,0,255)">Magenta</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(255,255,255)">White</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="sRGB(0,0,0)">Black</button>
+        </div>
+      </div>
+      <div class="rgb-facts">
+        <div class="rgb-fact"><div class="rf-title">💡 Additive Mixing</div><div class="rf-text">Screens use <strong style="color:#f0eee8">light</strong>, so colors add up. All three at 255 = <strong style="color:#fff">white</strong>. All at 0 = <strong style="color:#666">black</strong>. Opposite to mixing paint!</div></div>
+        <div class="rgb-fact"><div class="rf-title">🔢 Values 0 to 255</div><div class="rf-text">Each channel has 256 values (0–255). Combined: 256³ = <strong style="color:#f0eee8">16.7 million</strong> possible colors.</div></div>
+        <div class="rgb-fact"><div class="rf-title">🎨 RGB vs HEX</div><div class="rf-text">HEX is just RGB in base-16. <strong style="color:#60AAFF">#1A6FDB</strong> = R:26, G:111, B:219. Same color, different format.</div></div>
+        <div class="rgb-fact"><div class="rf-title">🖨️ RGB vs CMYK</div><div class="rf-text">RGB is for <strong style="color:#f0eee8">screens</strong>. Printers use <strong style="color:#f0eee8">CMYK</strong> (ink). Colors may look different when printed!</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PALETTE BUILDER -->
+<div class="section" id="sec-palette">
+  <div class="page">
+    <div class="page-title">Palette Builder</div>
+    <div class="page-sub">Choose a color and a scheme — your palette generates instantly. Click any swatch to copy its code.</div>
+    <div class="pal-layout">
+      <div class="pal-panel">
+        <div>
+          <div class="pal-section-label">Step 1 — Pick your base color</div>
+          <div class="pal-color-row">
+            <div class="pal-color-preview" id="pal-prev"></div>
+            <div class="pal-color-details"><div class="pal-color-hex" id="pal-hex-display">#1A6FDB</div><div class="pal-color-name" id="pal-name-display">Ocean Blue</div></div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="pal-presets" id="pal-presets">
+              <div class="pal-preset selected" style="background:#1A6FDB" data-hex="#1A6FDB" data-name="Ocean Blue"    onclick="selectColor(this)"></div>
+              <div class="pal-preset"          style="background:#FF7A1A" data-hex="#FF7A1A" data-name="Sunset Orange" onclick="selectColor(this)"></div>
+              <div class="pal-preset"          style="background:#34C759" data-hex="#34C759" data-name="Leaf Green"    onclick="selectColor(this)"></div>
+              <div class="pal-preset"          style="background:#AF52DE" data-hex="#AF52DE" data-name="Royal Violet"  onclick="selectColor(this)"></div>
+              <div class="pal-preset"          style="background:#FF3B30" data-hex="#FF3B30" data-name="Cherry Red"    onclick="selectColor(this)"></div>
+              <div class="pal-preset"          style="background:#FFE600" data-hex="#FFE600" data-name="Sunshine Yellow" onclick="selectColor(this)"></div>
+              <div class="pal-preset"          style="background:#00C7BE" data-hex="#00C7BE" data-name="Mint Teal"     onclick="selectColor(this)"></div>
+              <div class="pal-preset"          style="background:#FF2D55" data-hex="#FF2D55" data-name="Hot Pink"      onclick="selectColor(this)"></div>
+              <div class="custom-color-btn" onclick="document.getElementById('bc').click()">+</div>
+              <input type="color" id="bc" value="#1A6FDB" oninput="customColor(this.value)">
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="pal-section-label">Step 2 — Choose a color scheme</div>
+          <div class="pal-schemes">
+            <button class="pal-scheme-btn active" data-scheme="complementary" onclick="selectScheme(this)"><div class="psb-dots"><div class="psb-dot" id="sd-c1" style="background:#1A6FDB"></div><div class="psb-dot" id="sd-c2" style="background:#FF7A1A"></div></div><div class="psb-info"><div class="psb-name">Complementary</div><div class="psb-desc">Opposites — high contrast & bold</div></div></button>
+            <button class="pal-scheme-btn" data-scheme="analogous" onclick="selectScheme(this)"><div class="psb-dots"><div class="psb-dot" id="sd-a1"></div><div class="psb-dot" id="sd-a2"></div><div class="psb-dot" id="sd-a3"></div></div><div class="psb-info"><div class="psb-name">Analogous</div><div class="psb-desc">Neighbors — harmonious & calm</div></div></button>
+            <button class="pal-scheme-btn" data-scheme="triadic" onclick="selectScheme(this)"><div class="psb-dots"><div class="psb-dot" id="sd-t1"></div><div class="psb-dot" id="sd-t2"></div><div class="psb-dot" id="sd-t3"></div></div><div class="psb-info"><div class="psb-name">Triadic</div><div class="psb-desc">Evenly spaced — vibrant & playful</div></div></button>
+            <button class="pal-scheme-btn" data-scheme="monochromatic" onclick="selectScheme(this)"><div class="psb-dots"><div class="psb-dot" id="sd-m1"></div><div class="psb-dot" id="sd-m2"></div><div class="psb-dot" id="sd-m3"></div></div><div class="psb-info"><div class="psb-name">Monochromatic</div><div class="psb-desc">One hue — elegant & minimal</div></div></button>
+          </div>
+        </div>
+      </div>
+      <div class="pal-output-panel">
+        <div class="pal-swatches-big" id="pal-bar"></div>
+        <div class="pal-swatch-cards" id="pal-cards"></div>
+        <div class="pal-export"><div class="pal-export-label">Click any code to copy</div><div class="pal-export-codes" id="pal-codes"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRAST CHECKER -->
+<div class="section" id="sec-contrast">
+  <div class="page">
+    <div class="page-title">Contrast Checker</div>
+    <div class="page-sub">Good contrast makes text readable for everyone. Check if your color combination meets accessibility standards (WCAG).</div>
+    <div class="cc-layout">
+      <div class="cc-panel">
+        <div class="cc-preview" id="cc-preview">
+          <div class="cc-preview-title" id="cc-prev-title">Sample Heading</div>
+          <div class="cc-preview-body" id="cc-prev-body">This is how your body text looks on this background. Good contrast is essential for readability.</div>
+          <div class="cc-preview-btn" id="cc-prev-btn">Button</div>
+        </div>
+        <div class="cc-pickers">
+          <div class="cc-picker-group">
+            <div class="cc-picker-label">Text color</div>
+            <div class="cc-picker-row">
+              <div class="cc-color-swatch" id="cc-fg-swatch" style="background:#FFFFFF"></div>
+              <input class="cc-hex-input" id="cc-fg-input" value="#FFFFFF" oninput="updateContrast()" maxlength="7">
+            </div>
+          </div>
+          <div class="cc-picker-group">
+            <div class="cc-picker-label">Background color</div>
+            <div class="cc-picker-row">
+              <div class="cc-color-swatch" id="cc-bg-swatch" style="background:#1A6FDB"></div>
+              <input class="cc-hex-input" id="cc-bg-input" value="#1A6FDB" oninput="updateContrast()" maxlength="7">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="setCC('#FFFFFF','#1A6FDB')">White on Blue</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="setCC('#000000','#FFFFFF')">Black on White</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="setCC('#FFFFFF','#FF7A1A')">White on Orange</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="setCC('#1C2B4A','#F5F7FA')">Navy on Off-white</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="setCC('#FFE600','#000000')">Yellow on Black</button>
+        </div>
+        <div class="cc-result">
+          <div class="cc-ratio" id="cc-ratio">5.74</div>
+          <div class="cc-ratio-label">Contrast ratio</div>
+          <div class="cc-grades" id="cc-grades"></div>
+          <div class="cc-tip" id="cc-tip"></div>
+        </div>
+      </div>
+      <div class="cc-info-cards">
+        <div class="cc-info-card"><div class="cc-info-title">What is contrast ratio?</div><div class="cc-info-body">Contrast ratio measures how different two colors appear to the human eye. It ranges from <strong style="color:#f0eee8">1:1</strong> (identical) to <strong style="color:#f0eee8">21:1</strong> (pure black on white). Higher = more readable.</div></div>
+        <div class="cc-info-card"><div class="cc-info-title">WCAG Guidelines</div><div class="cc-info-body"><strong style="color:#5ADB7A">AA Standard</strong> — minimum for most text: 4.5:1 for normal text, 3:1 for large text (18px+ or bold 14px+).<br><br><strong style="color:#60AAFF">AAA Standard</strong> — enhanced: 7:1 for normal text, 4.5:1 for large text. Required for critical accessibility.</div></div>
+        <div class="cc-info-card"><div class="cc-info-title">Why does it matter?</div><div class="cc-info-body">About <strong style="color:#f0eee8">1 in 12 men</strong> and 1 in 200 women have some form of color vision deficiency. Poor contrast also affects users in bright sunlight, on low-quality screens, and those with visual impairments.</div></div>
+        <div class="cc-info-card"><div class="cc-info-title">Quick tips</div><div class="cc-info-body">• Dark text on light background usually works best<br>• Never use red text on green (or vice versa)<br>• Avoid light grey text on white backgrounds<br>• Always test your primary CTA button color combo</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UI MOCKUP -->
+<div class="section" id="sec-mockup">
+  <div class="page">
+    <div class="page-title">App UI Mockup Preview</div>
+    <div class="page-sub">See how different color palettes and schemes look applied to a real app interface. Switch styles to compare.</div>
+    <div class="mockup-controls">
+      <button class="mockup-btn active" onclick="setMockup('blue-orange',this)">Blue + Orange</button>
+      <button class="mockup-btn" onclick="setMockup('green-coral',this)">Green + Coral</button>
+      <button class="mockup-btn" onclick="setMockup('purple-yellow',this)">Purple + Yellow</button>
+      <button class="mockup-btn" onclick="setMockup('monochrome',this)">Monochromatic</button>
+      <button class="mockup-btn" onclick="setMockup('dark',this)">Dark Minimal</button>
+    </div>
+    <div class="mockup-frame">
+      <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+      <div id="mockup-inner"></div>
+    </div>
+    <div style="margin-top:16px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;">
+      <div style="font-size:13px;color:var(--muted);line-height:1.7" id="mockup-desc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COLOR BLINDNESS -->
+<div class="section" id="sec-blindness">
+  <div class="page">
+    <div class="page-title">Color Blindness Simulator</div>
+    <div class="page-sub">About 8% of men and 0.5% of women experience color vision deficiency. See how your design looks to them.</div>
+    <div class="cb-layout">
+      <div class="cb-panel">
+        <div class="pal-section-label" style="margin-bottom:12px">Select a type of color vision</div>
+        <div class="cb-types" id="cb-types"></div>
+        <div class="pal-section-label" style="margin-bottom:10px">Color palette comparison</div>
+        <div class="cb-preview-pair">
+          <div class="cb-preview-box">
+            <div style="padding:12px"><div class="cb-preview-label">Normal vision</div><div class="cb-swatch-row" id="cb-normal"></div></div>
+          </div>
+          <div class="cb-preview-box">
+            <div style="padding:12px"><div class="cb-preview-label" id="cb-sim-label">Simulated</div><div class="cb-swatch-row" id="cb-sim"></div></div>
+          </div>
+        </div>
+        <div class="cb-info" id="cb-info"></div>
+      </div>
+      <div class="cb-guide">
+        <div class="cb-guide-card"><div class="cb-guide-title">✅ Use icons alongside color</div><div class="cb-guide-text">Never rely on color alone to communicate meaning. Add icons, labels, or patterns so colorblind users get the same information.</div></div>
+        <div class="cb-guide-card"><div class="cb-guide-title">✅ Avoid red-green combinations</div><div class="cb-guide-text">Red-green color blindness is the most common type. Avoid using red and green together to signal opposite states like success/error.</div></div>
+        <div class="cb-guide-card"><div class="cb-guide-title">✅ Test with sufficient contrast</div><div class="cb-guide-text">High contrast ratios (4.5:1+) help all users including those with color vision deficiency distinguish elements on screen.</div></div>
+        <div class="cb-guide-card"><div class="cb-guide-title">✅ Use blue-orange instead of red-green</div><div class="cb-guide-text">Blue-orange is a safe complementary pair that works well for all types of color vision deficiency — like our App UI palette!</div></div>
+        <div class="cb-guide-card"><div class="cb-guide-title">✅ Add texture and patterns</div><div class="cb-guide-text">In charts and graphs, use different textures or patterns to distinguish data categories rather than relying on color alone.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="section" id="sec-quiz">
+  <div class="page">
+    <div class="page-title">Test Your Knowledge</div>
+    <div class="page-sub">10 questions covering everything you've learned. Answer all to see your score!</div>
+    <div class="quiz-wrap">
+      <div class="qprog" id="qprog"></div>
+      <div id="qbody"></div>
+      <div class="qscore" id="qsc">
+        <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:700">Quiz Complete!</div>
+        <div class="score-big" id="snum"></div>
+        <div class="score-msg" id="smsg"></div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="restQ()">Try Again</button>
+          <button class="btn btn-ghost"   onclick="show('wheel')">Review Lessons</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// NAV
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  const order=['home','wheel','schemes','rgb','palette','contrast','mockup','blindness','quiz'];
+  const idx=order.indexOf(id);
+  if(idx>-1) document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// WHEEL
+document.querySelectorAll('#cwsvg path').forEach(p=>{
+  p.addEventListener('click',()=>{
+    const n=document.getElementById('wsel-name');
+    n.textContent=p.dataset.n; n.style.color=p.getAttribute('fill');
+    document.getElementById('wsel-desc').textContent=' — '+p.dataset.i;
+  });
+});
+
+// RGB
+const toHex=n=>n.toString(16).padStart(2,'0').toUpperCase();
+function updRGB(){
+  const r=+document.getElementById('rs').value,g=+document.getElementById('gs').value,b=+document.getElementById('bs').value;
+  const hex=`#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  document.getElementById('rgb-prev').style.background=hex;
+  document.getElementById('rgb-hex').textContent=hex;
+  document.getElementById('rv').textContent=r;
+  document.getElementById('gv').textContent=g;
+  document.getElementById('bv').textContent=b;
+}
+function sRGB(r,g,b){document.getElementById('rs').value=r;document.getElementById('gs').value=g;document.getElementById('bs').value=b;updRGB();}
+updRGB();
+
+// PALETTE
+function h2hsl(hex){
+  let r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+  let h,s,l=(mx+mn)/2;
+  if(mx===mn){h=s=0;}else{const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;case b:h=((r-g)/d+4)/6;break;}}
+  return[h*360,s*100,l*100];
+}
+function hsl2hex(h,s,l){
+  h/=360;s/=100;l/=100;let r,g,b;
+  if(s===0){r=g=b=l;}else{const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;const hf=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};r=hf(p,q,h+1/3);g=hf(p,q,h);b=hf(p,q,h-1/3);}
+  return'#'+[r,g,b].map(x=>Math.round(x*255).toString(16).padStart(2,'0').toUpperCase()).join('');
+}
+function hexToRgb(hex){return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
+
+let currentBase='#1A6FDB',currentScheme='complementary';
+
+function selectColor(el){
+  document.querySelectorAll('.pal-preset').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  currentBase=el.dataset.hex;
+  document.getElementById('pal-hex-display').textContent=currentBase;
+  document.getElementById('pal-name-display').textContent=el.dataset.name;
+  document.getElementById('pal-prev').style.background=currentBase;
+  mkPalette();
+}
+function customColor(hex){
+  document.querySelectorAll('.pal-preset').forEach(p=>p.classList.remove('selected'));
+  currentBase=hex;
+  document.getElementById('pal-hex-display').textContent=hex.toUpperCase();
+  document.getElementById('pal-name-display').textContent='Custom color';
+  document.getElementById('pal-prev').style.background=hex;
+  mkPalette();
+}
+function selectScheme(el){
+  document.querySelectorAll('.pal-scheme-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  currentScheme=el.dataset.scheme;
+  mkPalette();
+}
+function mkPalette(){
+  const hex=currentBase,sc=currentScheme;
+  const[h,s,l]=h2hsl(hex);
+  let cols=[],labs=[];
+  if(sc==='complementary'){cols=[hsl2hex(h,s,l),hsl2hex(h,s*0.4,Math.min(l+28,90)),hsl2hex((h+180)%360,s,l),hsl2hex(h,s*0.15,96),hsl2hex(h,s*0.8,18),hsl2hex(h,s*0.3,58)];labs=['Primary','Secondary','Accent','Background','Text','Muted'];}
+  else if(sc==='analogous'){cols=[hsl2hex(h,s,l),hsl2hex((h+28)%360,s,l),hsl2hex((h-28+360)%360,s,l),hsl2hex(h,s*0.15,96),hsl2hex(h,s*0.7,18)];labs=['Base','Warm','Cool','Background','Text'];}
+  else if(sc==='triadic'){cols=[hsl2hex(h,s,l),hsl2hex((h+120)%360,s,l),hsl2hex((h+240)%360,s,l),hsl2hex(h,s*0.1,96),hsl2hex(h,s*0.7,16)];labs=['Color 1','Color 2','Color 3','Background','Text'];}
+  else{cols=[hsl2hex(h,s,Math.min(l+30,94)),hsl2hex(h,s,Math.min(l+15,84)),hsl2hex(h,s,l),hsl2hex(h,s,Math.max(l-15,14)),hsl2hex(h,s,Math.max(l-28,8))];labs=['Lightest','Light','Base','Dark','Darkest'];}
+  if(sc==='complementary'){document.getElementById('sd-c1').style.background=hsl2hex(h,s,l);document.getElementById('sd-c2').style.background=hsl2hex((h+180)%360,s,l);}
+  else if(sc==='analogous'){document.getElementById('sd-a1').style.background=hsl2hex(h,s,l);document.getElementById('sd-a2').style.background=hsl2hex((h+28)%360,s,l);document.getElementById('sd-a3').style.background=hsl2hex((h-28+360)%360,s,l);}
+  else if(sc==='triadic'){document.getElementById('sd-t1').style.background=hsl2hex(h,s,l);document.getElementById('sd-t2').style.background=hsl2hex((h+120)%360,s,l);document.getElementById('sd-t3').style.background=hsl2hex((h+240)%360,s,l);}
+  else{document.getElementById('sd-m1').style.background=hsl2hex(h,s,Math.min(l+15,84));document.getElementById('sd-m2').style.background=hsl2hex(h,s,l);document.getElementById('sd-m3').style.background=hsl2hex(h,s,Math.max(l-28,8));}
+  document.getElementById('pal-bar').innerHTML=cols.map(c=>`<div class="psw-big" style="background:${c}" onclick="cpHex('${c}')"><div class="psw-big-hex">${c}</div></div>`).join('');
+  document.getElementById('pal-cards').innerHTML=cols.map((c,i)=>{const[r,g,b]=hexToRgb(c);return`<div class="psc" onclick="cpHex('${c}')"><div class="psc-color" style="background:${c}"></div><div class="psc-info"><div class="psc-role">${labs[i]}</div><div class="psc-hex">${c}</div><div class="psc-rgb">rgb(${r},${g},${b})</div></div></div>`;}).join('');
+  document.getElementById('pal-codes').innerHTML=cols.map(c=>`<span class="pec" onclick="cpHex('${c}')">${c}</span>`).join('');
+}
+document.getElementById('pal-prev').style.background=currentBase;
+mkPalette();
+
+function cpHex(h){
+  navigator.clipboard?.writeText(h).catch(()=>{});
+  const t=document.getElementById('toast');t.textContent=`Copied ${h}`;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// CONTRAST CHECKER
+function getLuminance(hex){
+  const[r,g,b]=hexToRgb(hex).map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});
+  return 0.2126*r+0.7152*g+0.0722*b;
+}
+function getContrastRatio(h1,h2){
+  const l1=getLuminance(h1),l2=getLuminance(h2);
+  return(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
+}
+function isValidHex(h){return/^#[0-9A-Fa-f]{6}$/.test(h);}
+function updateContrast(){
+  let fg=document.getElementById('cc-fg-input').value.trim();
+  let bg=document.getElementById('cc-bg-input').value.trim();
+  if(!fg.startsWith('#'))fg='#'+fg;
+  if(!bg.startsWith('#'))bg='#'+bg;
+  if(!isValidHex(fg)||!isValidHex(bg))return;
+  document.getElementById('cc-fg-swatch').style.background=fg;
+  document.getElementById('cc-bg-swatch').style.background=bg;
+  document.getElementById('cc-preview').style.background=bg;
+  document.getElementById('cc-prev-title').style.color=fg;
+  document.getElementById('cc-prev-body').style.color=fg;
+  document.getElementById('cc-prev-btn').style.background=fg;
+  document.getElementById('cc-prev-btn').style.color=bg;
+  const ratio=getContrastRatio(fg,bg);
+  document.getElementById('cc-ratio').textContent=ratio.toFixed(2)+':1';
+  const aaLarge=ratio>=3,aaNormal=ratio>=4.5,aaaLarge=ratio>=4.5,aaaNormal=ratio>=7;
+  document.getElementById('cc-grades').innerHTML=[
+    {pass:aaNormal,name:'AA Normal text',desc:'Body text, links (min 4.5:1)'},
+    {pass:aaLarge, name:'AA Large text', desc:'18px+ or bold 14px+ (min 3:1)'},
+    {pass:aaaNormal,name:'AAA Normal text',desc:'Enhanced standard (min 7:1)'},
+    {pass:aaaLarge, name:'AAA Large text', desc:'Enhanced large text (min 4.5:1)'},
+  ].map(g=>`<div class="cc-grade ${g.pass?'cc-grade-pass':'cc-grade-fail'}"><div class="cc-grade-icon">${g.pass?'✅':'❌'}</div><div class="cc-grade-text"><div class="cc-grade-name">${g.name}</div><div class="cc-grade-desc">${g.desc}</div></div></div>`).join('');
+  const tips=ratio<3?'⚠️ Very poor contrast. This combination is not readable for most users. Try a much darker text or lighter background.'
+    :ratio<4.5?'⚠️ Passes for large text only. Increase contrast for body text — try darkening the text color or lightening the background.'
+    :ratio<7?'✅ Good contrast! Passes AA standard. Suitable for all text sizes in most products.'
+    :'✅ Excellent contrast! Passes AAA — the highest accessibility standard. Great choice!';
+  document.getElementById('cc-tip').textContent=tips;
+}
+function setCC(fg,bg){
+  document.getElementById('cc-fg-input').value=fg;
+  document.getElementById('cc-bg-input').value=bg;
+  updateContrast();
+}
+setCC('#FFFFFF','#1A6FDB');
+
+// UI MOCKUP
+const mockups={
+  'blue-orange':{
+    primary:'#1A6FDB',accent:'#FF7A1A',bg:'#F5F7FA',card:'#FFFFFF',text:'#1C2B4A',muted:'#8A9BB0',
+    desc:'<strong style="color:#f0eee8">Complementary scheme — Blue + Orange.</strong> Blue conveys trust and reliability (nav, buttons, links). Orange creates urgency and draws attention (CTA buttons, badges). This is your assignment palette!'
+  },
+  'green-coral':{
+    primary:'#16A34A',accent:'#E85D4A',bg:'#F0FDF4',card:'#FFFFFF',text:'#14532D',muted:'#6B9E7B',
+    desc:'<strong style="color:#f0eee8">Complementary scheme — Green + Coral.</strong> Green feels natural and trustworthy (wellness, finance). Coral provides a warm, inviting accent. Common in health and fitness apps.'
+  },
+  'purple-yellow':{
+    primary:'#7C3AED',accent:'#F59E0B',bg:'#FAF5FF',card:'#FFFFFF',text:'#3B0764',muted:'#9B7AB8',
+    desc:'<strong style="color:#f0eee8">Complementary scheme — Purple + Yellow.</strong> Purple conveys creativity and luxury. Yellow creates energy and optimism. Used in creative tools and education apps.'
+  },
+  'monochrome':{
+    primary:'#2563EB',accent:'#93C5FD',bg:'#EFF6FF',card:'#FFFFFF',text:'#1E3A5F',muted:'#7AA8D4',
+    desc:'<strong style="color:#f0eee8">Monochromatic scheme — shades of Blue.</strong> One hue in many shades creates a clean, professional, and focused look. Extremely easy to implement correctly. Common in fintech and productivity apps.'
+  },
+  'dark':{
+    primary:'#0f0f13',accent:'#E8E6DF',bg:'#0f0f13',card:'#1a1a22',text:'#E8E6DF',muted:'#6a6878',
+    desc:'<strong style="color:#f0eee8">Dark minimal scheme.</strong> Dark background reduces eye strain in low-light environments. Accent colors pop more on dark surfaces. Popular in developer tools, media players, and creative apps.'
+  }
+};
+function setMockup(key,btn){
+  document.querySelectorAll('.mockup-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const m=mockups[key];
+  document.getElementById('mockup-inner').innerHTML=`
+  <div style="background:${m.bg};padding:0;font-family:'DM Sans',sans-serif;min-height:520px;">
+    <div style="background:${m.primary};padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.2)"></div><span style="color:#fff;font-weight:500;font-size:15px">MyApp</span></div>
+      <div style="display:flex;gap:8px"><div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.5)"></div><div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.5)"></div><div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.5)"></div></div>
+    </div>
+    <div style="padding:20px">
+      <div style="background:${m.card};border-radius:16px;padding:20px;margin-bottom:14px;border:1px solid rgba(0,0,0,0.06)">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${m.muted};margin-bottom:6px">Welcome back</div>
+        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:${m.text};margin-bottom:8px">Good morning! 👋</div>
+        <div style="font-size:13px;color:${m.muted};line-height:1.6;margin-bottom:16px">You have 3 new notifications and 2 tasks due today.</div>
+        <button style="background:${m.accent};color:${m.primary==='#0f0f13'?'#0f0f13':'#fff'};border:none;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer">View Dashboard</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div style="background:${m.card};border-radius:14px;padding:16px;border:1px solid rgba(0,0,0,0.06)"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:${m.muted};margin-bottom:8px">Total Users</div><div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:${m.text}">12,847</div><div style="font-size:11px;color:#34C759;margin-top:4px">▲ 12% this week</div></div>
+        <div style="background:${m.card};border-radius:14px;padding:16px;border:1px solid rgba(0,0,0,0.06)"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:${m.muted};margin-bottom:8px">Revenue</div><div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:${m.text}">₹2.4L</div><div style="font-size:11px;color:${m.accent};margin-top:4px">▲ 8% this week</div></div>
+      </div>
+      <div style="background:${m.card};border-radius:14px;padding:16px;border:1px solid rgba(0,0,0,0.06)">
+        <div style="font-size:13px;font-weight:500;color:${m.text};margin-bottom:12px">Recent Activity</div>
+        ${['New user signed up','Payment received','Report generated'].map((item,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05)"><div style="width:32px;height:32px;border-radius:50%;background:${m.primary};opacity:${0.7+i*0.1};flex-shrink:0"></div><div><div style="font-size:13px;color:${m.text}">${item}</div><div style="font-size:11px;color:${m.muted}">${i+1} hour ago</div></div><div style="margin-left:auto;background:${m.accent};color:#fff;font-size:10px;padding:3px 8px;border-radius:8px">New</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('mockup-desc').innerHTML=m.desc;
+}
+setMockup('blue-orange',document.querySelector('.mockup-btn.active'));
+
+// COLOR BLINDNESS SIMULATOR
+const cbTypes=[
+  {id:'normal',   name:'Normal vision', pct:'Full color vision', desc:'How people with full color vision see colors.', tip:'This is the baseline. All other views compare to this.'},
+  {id:'deuteranopia', name:'Deuteranopia',pct:'~6% of males',desc:'Red-green color blindness (most common). Green cones are absent — reds and greens appear as yellows and browns.',tip:'Avoid using red vs green to convey meaning. Use blue-orange instead.'},
+  {id:'protanopia',   name:'Protanopia',  pct:'~2% of males',desc:'Red-green color blindness. Red cones are absent — reds appear very dark, greens look similar to yellows.',tip:'Never rely on red alone for error states. Add an icon or text label.'},
+  {id:'tritanopia',   name:'Tritanopia',  pct:'<0.01% of people',desc:'Blue-yellow color blindness (very rare). Blue cones are absent — blues and greens look similar.',tip:'Rare but still worth testing. Use shapes and patterns alongside color.'},
+  {id:'achromatopsia',name:'Achromatopsia',pct:'<0.003% of people',desc:'Complete color blindness — sees only shades of grey. Light sensitivity is also common.',tip:'If it passes in greyscale, it passes for everyone. Contrast ratio is critical.'},
+];
+const palette=['#1A6FDB','#FF7A1A','#34C759','#AF52DE','#FF3B30','#FFE600','#00C7BE'];
+function simulateColor(hex,type){
+  const[r,g,b]=hexToRgb(hex);
+  if(type==='normal')return hex;
+  if(type==='achromatopsia'){const g2=Math.round(0.299*r+0.587*g+0.114*b);return hsl2hex(0,0,g2/255*100);}
+  let R=r/255,G=g/255,B=b/255;
+  let nr=R,ng=G,nb=B;
+  if(type==='deuteranopia'){nr=0.625*R+0.375*G;ng=0.7*R+0.3*G;nb=0.3*G+0.7*B;}// simplified
+  else if(type==='protanopia'){nr=0.567*R+0.433*G;ng=0.558*R+0.442*G;nb=0.242*G+0.758*B;}
+  else if(type==='tritanopia'){nr=0.95*R+0.05*B;ng=0.433*G+0.567*B;nb=0.475*G+0.525*B;}
+  const clamp=v=>Math.round(Math.max(0,Math.min(255,v*255)));
+  return`#${clamp(nr).toString(16).padStart(2,'0')}${clamp(ng).toString(16).padStart(2,'0')}${clamp(nb).toString(16).padStart(2,'0')}`.toUpperCase();
+}
+let currentCbType='normal';
+function selectCbType(id){
+  currentCbType=id;
+  document.querySelectorAll('.cb-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+  renderCbSim();
+}
+function renderCbSim(){
+  const type=cbTypes.find(t=>t.id===currentCbType);
+  document.getElementById('cb-normal').innerHTML=palette.map(c=>`<div class="cb-swatch-item" style="background:${c}"></div>`).join('');
+  document.getElementById('cb-sim').innerHTML=palette.map(c=>`<div class="cb-swatch-item" style="background:${simulateColor(c,currentCbType)}"></div>`).join('');
+  document.getElementById('cb-sim-label').textContent=type.name;
+  document.getElementById('cb-info').innerHTML=`<div class="cb-info-name">${type.name} <span style="font-size:12px;font-weight:300;color:var(--muted)">${type.pct}</span></div><div class="cb-info-desc">${type.desc}</div><div class="cb-info-tip">💡 ${type.tip}</div>`;
+}
+document.getElementById('cb-types').innerHTML=cbTypes.map(t=>`<button class="cb-type-btn${t.id==='normal'?' active':''}" data-id="${t.id}" onclick="selectCbType('${t.id}')"><div class="cb-type-name">${t.name}</div><div class="cb-type-pct">${t.pct}</div></button>`).join('');
+renderCbSim();
+
+// QUIZ (10 questions)
+const Qs=[
+  {q:"Which of these is a PRIMARY color?",hint:"Primary colors cannot be made by mixing other colors.",vis:["#FF9500","#34C759","#AF52DE","#007AFF"],opts:["Orange","Green","Violet","Blue"],ans:3,fb:"Blue is a primary color! Orange=Red+Yellow, Green=Yellow+Blue, Violet=Red+Blue."},
+  {q:"Blue + Orange form which color scheme?",hint:"Look at their position on the color wheel.",vis:["#1A6FDB","#FF7A1A"],opts:["Analogous","Triadic","Complementary","Monochromatic"],ans:2,fb:"Blue and Orange are directly opposite on the wheel — that's a Complementary scheme!"},
+  {q:"What does Red + Green light make in RGB?",hint:"RGB is additive (light), not subtractive (paint).",vis:["#FF3B30","#34C759"],opts:["Brown","Black","Purple","Yellow"],ans:3,fb:"In RGB light mixing, Red + Green = Yellow. Opposite to paint where Red + Green = Brown."},
+  {q:"Which scheme uses ONE hue in many shades?",hint:"Think: which is the most minimal scheme?",vis:["#E6F1FB","#85B7EB","#378ADD","#185FA5","#042C53"],opts:["Triadic","Analogous","Complementary","Monochromatic"],ans:3,fb:"Monochromatic means 'one color'. It uses tints and shades of a single hue."},
+  {q:"What does RGB stand for?",hint:"It's the color model used by all digital screens.",vis:["#FF3B30","#34C759","#007AFF"],opts:["Really Good Brightness","Red Green Blue","Red Grain Blur","Randomly Generated Base"],ans:1,fb:"RGB = Red, Green, Blue — the three light channels that create every color on screen."},
+  {q:"What minimum contrast ratio does WCAG AA require for normal body text?",hint:"This is the accessibility standard used by most websites.",vis:["#FFFFFF","#777777"],opts:["2:1","3:1","4.5:1","7:1"],ans:2,fb:"WCAG AA requires at least 4.5:1 for normal text. 3:1 is for large text (18px+ or bold 14px+)."},
+  {q:"Which color blindness type is most common?",hint:"It affects about 6% of males.",vis:["#FF3B30","#34C759","#888800"],opts:["Tritanopia","Achromatopsia","Deuteranopia","Protanopia"],ans:2,fb:"Deuteranopia is the most common, affecting ~6% of males. It causes difficulty distinguishing red and green."},
+  {q:"What color do ALL three RGB channels at 255 produce?",hint:"RGB is additive — mixing all light together gives...",vis:["#FF3B30","#34C759","#007AFF"],opts:["Grey","Yellow","Black","White"],ans:3,fb:"When all three RGB channels are at maximum (255), they produce pure white light. All off = black."},
+  {q:"Which of these is an ANALOGOUS color scheme?",hint:"Analogous = colors sitting next to each other on the wheel.",vis:["#FF3B30","#FF7A1A","#FFE600"],opts:["Red, Blue, Yellow","Red, Orange, Yellow","Blue, Green, Red","Violet, Yellow, Blue"],ans:1,fb:"Red, Orange, and Yellow are neighboring colors on the wheel — a classic analogous scheme!"},
+  {q:"Which color pair is safest for colorblind users?",hint:"The most common color blindness affects red-green perception.",vis:["#FF3B30","#34C759","#007AFF","#FF7A1A"],opts:["Red + Green","Red + Orange","Blue + Orange","Green + Yellow"],ans:2,fb:"Blue + Orange is the safest complementary pair for colorblind users. Red + Green is the worst choice!"},
+];
+let cur=0,sc=0,done=false;
+function renderQ(){
+  document.getElementById('qprog').innerHTML=Qs.map((_,i)=>`<div class="qpd ${i<cur?'done':i===cur?'cur':''}"></div>`).join('');
+  const q=Qs[cur];
+  document.getElementById('qbody').innerHTML=`<div class="qq">${q.q}</div><div class="qhint">${q.hint}</div><div class="qvis">${q.vis.map(c=>`<div class="qsw" style="background:${c}"></div>`).join('')}</div><div class="qopts">${q.opts.map((o,i)=>`<button class="qopt" onclick="ans(${i})">${o}</button>`).join('')}</div><div class="qfb" id="qfb"></div><button class="btn btn-primary qnext" id="qnxt" onclick="nxtQ()">${cur<Qs.length-1?'Next Question →':'See My Score'}</button>`;
+  done=false;
+  document.getElementById('qsc').classList.remove('show');
+}
+function ans(i){
+  if(done)return;done=true;
+  const q=Qs[cur],opts=document.querySelectorAll('.qopt'),fb=document.getElementById('qfb');
+  if(i===q.ans){sc++;opts[i].classList.add('correct');fb.textContent='✓ '+q.fb;fb.className='qfb show fb-ok';}
+  else{opts[i].classList.add('wrong');opts[q.ans].classList.add('correct');fb.textContent='✗ Not quite. '+q.fb;fb.className='qfb show fb-err';}
+  document.getElementById('qnxt').classList.add('show');
+}
+function nxtQ(){cur++;if(cur>=Qs.length)showSc();else renderQ();}
+function showSc(){
+  document.getElementById('qbody').innerHTML='';
+  document.getElementById('qprog').innerHTML=Qs.map(()=>`<div class="qpd done"></div>`).join('');
+  document.getElementById('snum').textContent=`${sc}/${Qs.length}`;
+  const msgs=['Keep practicing! Review the lessons and try again.','Getting there! A few more reads will help.','Good effort! You know the basics.','Solid work! You understand color theory well.','Great job! Almost perfect.','Perfect score! You\'re a color theory expert! 🎨'];
+  document.getElementById('smsg').textContent=msgs[Math.min(sc,5)];
+  document.getElementById('qsc').classList.add('show');
+}
+function restQ(){cur=0;sc=0;renderQ();}
+renderQ();
+</script>
+</body>
+</html>
